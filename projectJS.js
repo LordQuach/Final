@@ -1,6 +1,30 @@
-document.getElementById("btnSubmit").addEventListener('click', plannerWindow)
+//Form submit
+document.getElementById('btnSubmit').addEventListener('click', function() {
+    if (emailInput.validity.valid) {
+        plannerWindow();
+    }
+    else {
+        alert("Error: Invalid email address.");
+    }
+});
+
+//Email validation
+var emailInput = document.getElementById("inputEmail")
+emailInput.setAttribute('type', 'email');
+emailInput.addEventListener("input", function() {
+    if (emailInput.validity.valid) {
+      emailInput.classList.remove("invalid");
+    } else {
+      emailInput.classList.add("invalid");
+    }
+});
+
+//Create the new window function
 function plannerWindow()
 {
+    //Open new window
+    flyWindow = window.open("","Meal Planner");
+    
     //Form inputs
     var visitorName = document.getElementById("inputName").value;
     var visitorEmail = document.getElementById("inputEmail").value;
@@ -17,15 +41,15 @@ function plannerWindow()
     const mealsPerDay = 5;
     const table = document.createElement('table');
     const headerRow = document.createElement('tr');
+    table.setAttribute("id", "mealPlannerTable");
     table.style.border = "1px solid black";
-    headerRow.style.border = "1px solid black";
 
     //Generate planner table
     function createPlanner() {
 
         //Build the header row
         for (var i = 0; i < daysOfWeek.length; i++) {
-            var headerCell = document.createElement("th");
+            var headerCell = document.createElement('th');
             headerCell.textContent = daysOfWeek[i];
             headerRow.appendChild(headerCell);
         }
@@ -33,11 +57,11 @@ function plannerWindow()
 
         //Build the meal rows
         for (var j = 0; j < mealsPerDay; j++) {
-            var mealRow = document.createElement("tr");
+            var mealRow = document.createElement('tr');
 
             // Create and append the cells for each day
             for (var k = 0; k < daysOfWeek.length; k++) {
-            var mealCell = document.createElement("td");
+            var mealCell = document.createElement('td');
             mealCell.style.border = "1px solid black";
             mealCell.textContent = arrayMeals[j];
             mealRow.appendChild(mealCell);
@@ -48,25 +72,36 @@ function plannerWindow()
         }
     }
 
-    //Create the planner
+    //Create the planner table
     createPlanner();
 
-    //Create container and clear button on new page
-    const tableContainer = document.createElement('div');
-    const clearButton = document.createElement('button');
+    //Create container and buttons on new page
+    const pageContainer = document.createElement('div');
+    var pageHeader = document.createElement('h1');
+    pageHeader.innerHTML = visitorName + '   ' + visitorEmail + '<br>' + visitorGoal;
+    var clearButton = document.createElement('button');
     clearButton.textContent = 'Clear Meals';
-    clearButton.addEventListener('click', function() {
-        arrayMeals = [];
-        createPlanner();
-        tableContainer.removeChild(table);
-        tableContainer.appendChild(table);
-    });
+    clearButton.id = 'clearButton';
+    var printButton = document.createElement('button');
+    printButton.textContent = 'Print';
+    printButton.id = 'printButton';
+    var downloadButton = document.createElement('button');
+    downloadButton.textContent = 'Download';
+    downloadButton.id = 'downloadButton';
 
-    //Add container to new page
-    tableContainer.appendChild(table);
-    tableContainer.appendChild(clearButton);
+    //Build container
+    pageContainer.appendChild(pageHeader);
+    pageContainer.appendChild(table);
+    pageContainer.appendChild(clearButton);
+    pageContainer.appendChild(printButton);
+    pageContainer.appendChild(downloadButton);
+    
+    //Contents
+    pageText = ("<html><head><title>Meal Planner</title></head><body><div id=newPage>");
+    pageText += pageContainer.innerHTML
+    pageText += ("<script src='buttonEvents.js'></script></div></body></html>");
 
-    //Open new window
-    flyWindow = window.open('about:blank','myPop');
-    flyWindow.document.write(tableContainer.innerHTML);
+    //Populate the window
+    flyWindow.document.write(pageText);
+    flyWindow.document.close();
 }
